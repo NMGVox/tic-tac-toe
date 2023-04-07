@@ -32,6 +32,7 @@ var gameBoard = (function () {
         },
         update: function (indx, mark) {
             _updateSpaces(indx, mark);
+            moves++;
             console.log(spaces);
         },
         spaceAvailable: function(i) {
@@ -50,19 +51,7 @@ var controller = (function () {
         activePlayer = players[0];
     }
 
-    function _addMark(e) {
-        if(gameBoard.spaceAvailable(e.target.getAttribute('index')) !== ''){
-            return;
-        }
-
-        if (activePlayer.mark === 'O'){
-            e.target.firstChild.src = './images/circle.svg';
-        }else {
-            e.target.firstChild.src = './images/cross.svg';
-        }
-        e.target.firstChild.style.display = 'block';
-
-        gameBoard.update(e.target.getAttribute('index'), activePlayer.mark);
+    function _switchActivePlayer() {
         if(activePlayer === players[0]){
             activePlayer = players[1]
         } else{
@@ -76,19 +65,43 @@ var controller = (function () {
         },
         makePlayers: function() {
             _makePlayers();
+        },
+        getActivePlayer: function() {
+            return activePlayer;
+        },
+        switchActivePlayer: function() {
+            _switchActivePlayer();
         }
     }
 })();
 
 function playerFactory(ptype, mark) {
-    return {ptype, mark};
+    function addMark(e) {
+        console.log(mark);
+        if(gameBoard.spaceAvailable(e.target.getAttribute('index')) !== ''){
+            return;
+        }
+        if (mark === 'O'){
+            e.target.firstChild.src = './images/circle.svg';
+        }else {
+            e.target.firstChild.src = './images/cross.svg';
+        }
+        e.target.firstChild.style.display = 'block';
+
+        gameBoard.update(e.target.getAttribute('index'), mark);
+        
+    }
+    return {ptype, mark, addMark};
 }
 
 
 document.querySelector('body').addEventListener('pointerdown', (event)=>{
     if(event.target.classList.contains('wrapper')) {
-        controller.addMark(event);
+        controller.getActivePlayer().addMark(event);
+        //check winning state
+        controller.switchActivePlayer();
     }
+
 })
 
 document.querySelector("#start").addEventListener('pointerdown', (event) =>{
