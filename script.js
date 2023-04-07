@@ -89,6 +89,9 @@ function playerFactory(ptype, mark) {
         e.target.firstChild.style.display = 'block';
 
         gameBoard.update(e.target.getAttribute('index'), mark);
+
+        //check winning state
+        controller.switchActivePlayer();
         
     }
     return {ptype, mark, addMark};
@@ -98,8 +101,6 @@ function playerFactory(ptype, mark) {
 document.querySelector('body').addEventListener('pointerdown', (event)=>{
     if(event.target.classList.contains('wrapper')) {
         controller.getActivePlayer().addMark(event);
-        //check winning state
-        controller.switchActivePlayer();
     }
 
 })
