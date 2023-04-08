@@ -1,11 +1,13 @@
+
 var gameBoard = (function () {
     let spaces = [];
-    let moves = 0;
-    
+    let _gameActive = false;
+
     function _makeBoard(){
         let board = document.createElement('div');
         board.className = "gameboard";
         board.id = 'gameboard';
+
         for(let i = 0; i < 9; i++){
             let newWrap = document.createElement('div');
             let newSpace = document.createElement('img');
@@ -23,20 +25,30 @@ var gameBoard = (function () {
         console.log(spaces)
     };
 
+    function _triggerGame() {
+        _gameActive = !_gameActive;
+    }
+
     function _updateSpaces(i, m) {
         spaces[i] = m;
     }
+
     return {
         initializeGame: function () {
-            _makeBoard();
+            setInterval(_makeBoard, 200);
+            _triggerGame();
         },
         update: function (indx, mark) {
             _updateSpaces(indx, mark);
-            moves++;
-            console.log(spaces);
         },
         spaceAvailable: function(i) {
             return spaces[i];
+        },
+        isGameActive: function() {
+            return _gameActive;
+        },
+        endGame: function() {
+            _triggerGame();
         }
     };
 })();
@@ -44,6 +56,7 @@ var gameBoard = (function () {
 var controller = (function () {
     let players = [];
     let activePlayer;
+    let _moves = 0;
 
     function _makePlayers() {
         players.push(playerFactory("human", 'X'));
@@ -59,6 +72,11 @@ var controller = (function () {
         }
     }
 
+    function _drawGame() {
+        console.log("Tie.");
+        gameBoard.endGame();
+    }
+
     return {
         addMark: function (e) {
             _addMark(e);
@@ -71,13 +89,18 @@ var controller = (function () {
         },
         switchActivePlayer: function() {
             _switchActivePlayer();
+        },
+        increaseMoves: function() {
+            _moves++;
+            if(_moves === 9) {
+                _drawGame();
+            }
         }
     }
 })();
 
 function playerFactory(ptype, mark) {
     function addMark(e) {
-        console.log(mark);
         if(gameBoard.spaceAvailable(e.target.getAttribute('index')) !== ''){
             return;
         }
@@ -90,7 +113,10 @@ function playerFactory(ptype, mark) {
 
         gameBoard.update(e.target.getAttribute('index'), mark);
 
+        controller.increaseMoves();
+
         //check winning state
+
         controller.switchActivePlayer();
         
     }
@@ -99,7 +125,7 @@ function playerFactory(ptype, mark) {
 
 
 document.querySelector('body').addEventListener('pointerdown', (event)=>{
-    if(event.target.classList.contains('wrapper')) {
+    if(event.target.classList.contains('wrapper') && gameBoard.isGameActive()) {
         controller.getActivePlayer().addMark(event);
     }
 
