@@ -1,4 +1,3 @@
-
 var gameBoard = (function () {
     let spaces = [];
     let _gameActive = false;
@@ -35,7 +34,6 @@ var gameBoard = (function () {
 
     return {
         initializeGame: function () {
-            setInterval(_makeBoard, 200);
             _triggerGame();
         },
         update: function (indx, mark) {
