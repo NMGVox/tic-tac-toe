@@ -34,6 +34,7 @@ var gameBoard = (function () {
 
     return {
         initializeGame: function () {
+            _makeBoard();
             _triggerGame();
         },
         update: function (indx, mark) {
