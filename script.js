@@ -83,13 +83,21 @@ var controller = (function () {
         }
     }
 
+    function _returnOppPlayer() {
+        if(activePlayer === players[0]){
+            return players[1];
+        } else{
+            return players[0];
+        }
+    }
+
     function _drawGame() {
         console.log("Tie.");
         gameBoard.endGame();
     }
 
-    function _checkWin(state) {
-        winner = activePlayer.mark.repeat(3);
+    function _checkWin(state, currentplayer) {
+        winner = currentplayer.mark.repeat(3);
         for (let i = 0; i < _winningStates.length; i++) {
             let ele = _winningStates[i];
             let combination = (state[ele[0]]  + state[ele[1]] + state[ele[2]]);
@@ -103,50 +111,33 @@ var controller = (function () {
         return false;
     }
 
-    function _minimax(state, alpha, beta, depth, isMaximizingPlayer) {
-        if ( _checkWin(state) ) {
-            // If maxplayer is true, min player went last. So the min player won.
-            if(isMaximizingPlayer) {
+    function _minimax(state, depth, isMaximizingPlayer) {
+        if(_checkWin(state, isMaximizingPlayer)){
+            if(isMaximizingPlayer.ptype !== "cpu"){
                 return -10 + depth;
             }
             return 10 - depth;
         }
-        //If 9 moves have been made, and there is no winner, the scenario is a tie.
-        if ( depth === 9 ) {
+        if( depth === 9) {
             return 0;
         }
 
-        if ( isMaximizingPlayer ) {
-            value = -Infinity;
-            for (let  i = 0; i < state.length; i++) {
-                if (state[i] !==  ''){
-                    continue;
-                }
-                let temp = state.slice(0, 9);
-                temp[i] = 'O';
-                let minimaxVal = _minimax(temp, alpha, beta, depth + 1, false);
-                value = Math.max(value, minimaxVal);
-                // alpha = Math.max(alpha, value);
-                // if (value >= beta){
-                //     break;
-                // }
+        if (isMaximizingPlayer.ptype === "cpu" ) {
+            let value = -999999;
+            for(let i = 0; i < state.length; i++) {
+                if(state[i] !== '') { continue; }
+                state[i] = isMaximizingPlayer.mark;
+                value = Math.max(value, _minimax(state, depth + 1, _returnOppPlayer()));
+                state[i] = '';
             }
             return value;
-        }
-        else {
-            value = Infinity;
-            for (let  i = 0; i < state.length; i++) {
-                if (state[i] !==  ''){
-                    continue;
-                }
-                let temp = state.slice(0, 9);
-                temp[i] = 'X';
-                let minimaxVal = _minimax(temp, alpha, beta, depth + 1, true);
-                value = Math.min(value, minimaxVal);
-                // beta = Math.min(beta, value);
-                // if (value <= alpha){
-                //     break;
-                // }
+        } else {
+            let value = 999999;
+            for(let i = 0; i < state.length; i++) {
+                if(state[i] !== '') { continue; }
+                state[i] = isMaximizingPlayer.mark;
+                value = Math.min(value, _minimax(state, depth + 1, activePlayer));
+                state[i] = '';
             }
             return value;
         }
@@ -161,7 +152,7 @@ var controller = (function () {
             }
             let temp = state.slice(0, 9);
             temp[i] = activePlayer.mark;
-            let thisMove = _minimax(temp, -Infinity, Infinity, _moves+1, false);
+            let thisMove = _minimax(temp, _moves+1, _returnOppPlayer());
             if (thisMove > bestVal ) {
                 bestVal = thisMove;
                 bestMove = i;
@@ -172,7 +163,11 @@ var controller = (function () {
 
     function _cpuMark(){
         let indx = _nextBestMove(gameBoard.getCurrentState());
-        console.log(indx);
+        gameBoard.update(indx, activePlayer.mark);
+        let guiBoard = Array.from(document.querySelectorAll('.wrapper'));
+        guiBoard[indx].firstChild.src = './images/circle.svg';
+        guiBoard[indx].firstChild.style.display  = 'block';
+        _switchActivePlayer();
         return;
     }
 
@@ -195,8 +190,8 @@ var controller = (function () {
         getMoves: function() {
             return _moves;
         },
-        checkWin: function(state) {
-            return _checkWin(state);
+        checkWin: function(state, currentplayer) {
+            return _checkWin(state, currentplayer);
         },
         cpuMark : function() {
             return _cpuMark();
@@ -223,7 +218,7 @@ function playerFactory(ptype, mark) {
 
         //check winning state
         if(controller.getMoves() >= 5){
-            if (controller.checkWin(gameBoard.getCurrentState())){
+            if (controller.checkWin(gameBoard.getCurrentState(), controller.getActivePlayer())){
                 console.log(`${controller.getActivePlayer().mark} wins!`)
                 gameBoard.endGame();
             }
