@@ -40,7 +40,7 @@ var gameBoard = (function () {
         update: function (indx, mark) {
             _updateSpaces(indx, mark);
         },
-        spaceAvailable: function(i) {
+        getSpace: function(i) {
             return spaces[i];
         },
         isGameActive: function() {
@@ -56,6 +56,16 @@ var controller = (function () {
     let players = [];
     let activePlayer;
     let _moves = 0;
+    const _winningStates = [
+        [0,1,2],
+        [3,4,5],
+        [6,7,8],
+        [0,3,6],
+        [1,4,7],
+        [2,5,8],
+        [2,4,6],
+        [0,4,8]
+    ]
 
     function _makePlayers() {
         players.push(playerFactory("human", 'X'));
@@ -76,6 +86,22 @@ var controller = (function () {
         gameBoard.endGame();
     }
 
+    function _checkWin() {
+        if(_moves === 9) {
+            _drawGame();
+            return;
+        }
+        winner = activePlayer.mark.repeat(3);
+        for (let i = 0; i < _winningStates.length; i++) {
+            let ele = _winningStates[i];
+            let combination = (gameBoard.getSpace(ele[0])  + gameBoard.getSpace(ele[1]) + gameBoard.getSpace(ele[2]));
+            if (winner === combination) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     return {
         addMark: function (e) {
             _addMark(e);
@@ -91,16 +117,19 @@ var controller = (function () {
         },
         increaseMoves: function() {
             _moves++;
-            if(_moves === 9) {
-                _drawGame();
-            }
+        },
+        getMoves: function() {
+            return _moves;
+        },
+        checkWin: function() {
+            return _checkWin();
         }
     }
 })();
 
 function playerFactory(ptype, mark) {
     function addMark(e) {
-        if(gameBoard.spaceAvailable(e.target.getAttribute('index')) !== ''){
+        if(gameBoard.getSpace(e.target.getAttribute('index')) !== ''){
             return;
         }
         if (mark === 'O'){
@@ -115,6 +144,13 @@ function playerFactory(ptype, mark) {
         controller.increaseMoves();
 
         //check winning state
+        if(controller.getMoves() >= 5){
+            console.log(controller.checkWin());
+            if (controller.checkWin()){
+                console.log(`${controller.getActivePlayer().mark} wins!`)
+                gameBoard.endGame();
+            }
+        }
 
         controller.switchActivePlayer();
         
