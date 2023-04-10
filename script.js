@@ -21,7 +21,6 @@ var gameBoard = (function () {
         }
         document.querySelector('body').appendChild(board);
         document.getElementById('start').style.display = 'none';
-        console.log(spaces)
     };
 
     function _triggerGame() {
@@ -89,11 +88,11 @@ var controller = (function () {
         gameBoard.endGame();
     }
 
-    function _checkWin() {
+    function _checkWin(state) {
         winner = activePlayer.mark.repeat(3);
         for (let i = 0; i < _winningStates.length; i++) {
             let ele = _winningStates[i];
-            let combination = (gameBoard.getSpace(ele[0])  + gameBoard.getSpace(ele[1]) + gameBoard.getSpace(ele[2]));
+            let combination = (state[ele[0]]  + state[ele[1]] + state[ele[2]]);
             if (winner === combination) {
                 return true;
             }
@@ -104,21 +103,67 @@ var controller = (function () {
         return false;
     }
 
-    function minimax(state, depth, isMaximizingPlayer) {
-        return "sorry nothing";
+    function _minimax(state, alpha, beta, depth, isMaximizingPlayer) {
+        if ( _checkWin(state) ) {
+            // If maxplayer is true, min player went last. So the min player won.
+            if(isMaximizingPlayer) {
+                return -10 + depth;
+            }
+            return 10 - depth;
+        }
+        //If 9 moves have been made, and there is no winner, the scenario is a tie.
+        if ( depth === 9 ) {
+            return 0;
+        }
+
+        if ( isMaximizingPlayer ) {
+            value = -Infinity;
+            for (let  i = 0; i < state.length; i++) {
+                if (state[i] !==  ''){
+                    continue;
+                }
+                let temp = state.slice(0, 9);
+                temp[i] = 'O';
+                let minimaxVal = _minimax(temp, alpha, beta, depth + 1, false);
+                value = Math.max(value, minimaxVal);
+                // alpha = Math.max(alpha, value);
+                // if (value >= beta){
+                //     break;
+                // }
+            }
+            return value;
+        }
+        else {
+            value = Infinity;
+            for (let  i = 0; i < state.length; i++) {
+                if (state[i] !==  ''){
+                    continue;
+                }
+                let temp = state.slice(0, 9);
+                temp[i] = 'X';
+                let minimaxVal = _minimax(temp, alpha, beta, depth + 1, true);
+                value = Math.min(value, minimaxVal);
+                // beta = Math.min(beta, value);
+                // if (value <= alpha){
+                //     break;
+                // }
+            }
+            return value;
+        }
     }
 
     function _nextBestMove(state){
         let bestMove = null;
-        let bestVal = -9999999;
+        let bestVal = -Infinity;
         for (let i = 0; i < state.length; i ++){
             if(state[i] !== ''){
                 continue;
             }
             let temp = state.slice(0, 9);
             temp[i] = activePlayer.mark;
-            let thisMove = minimax(temp, _moves+1, true);
+            let thisMove = _minimax(temp, -Infinity, Infinity, _moves+1, false);
             if (thisMove > bestVal ) {
+                bestVal = thisMove;
                 bestMove = i;
             }
         }
@@ -150,8 +195,8 @@ var controller = (function () {
         getMoves: function() {
             return _moves;
         },
-        checkWin: function() {
-            return _checkWin();
+        checkWin: function(state) {
+            return _checkWin(state);
         },
         cpuMark : function() {
             return _cpuMark();
@@ -178,8 +223,7 @@ function playerFactory(ptype, mark) {
 
         //check winning state
         if(controller.getMoves() >= 5){
-            console.log(controller.checkWin());
-            if (controller.checkWin()){
+            if (controller.checkWin(gameBoard.getCurrentState())){
                 console.log(`${controller.getActivePlayer().mark} wins!`)
                 gameBoard.endGame();
             }
