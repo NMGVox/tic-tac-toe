@@ -167,6 +167,16 @@ var controller = (function () {
         let guiBoard = Array.from(document.querySelectorAll('.wrapper'));
         guiBoard[indx].firstChild.src = './images/circle.svg';
         guiBoard[indx].firstChild.style.display  = 'block';
+        _moves++;
+
+        if(controller.getMoves() >= 5){
+            if (controller.checkWin(gameBoard.getCurrentState(), controller.getActivePlayer())){
+                console.log(`${controller.getActivePlayer().mark} wins!`)
+                gameBoard.endGame();
+            }
+        }
+
+        console.log(_moves);
         _switchActivePlayer();
         return;
     }
@@ -225,7 +235,7 @@ function playerFactory(ptype, mark) {
         }
 
         controller.switchActivePlayer();
-        if (controller.getActivePlayer().ptype = "cpu"){ 
+        if (gameBoard.isGameActive() && controller.getActivePlayer().ptype === "cpu"){ 
             setTimeout(controller.cpuMark, 1000);
         }
         
