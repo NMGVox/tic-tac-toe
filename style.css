@@ -37,6 +37,22 @@ body {
     height: 100vh;
 }
 
+.menu-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    height: 60%;
+    width: 70%;
+    background-color: red;
+}
+
+.selection-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 .gameboard {
     display:grid;
     grid-template-columns: repeat(3, 1fr);

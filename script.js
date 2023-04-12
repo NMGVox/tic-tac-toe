@@ -1,6 +1,22 @@
+function addReset() {
+    let reset = document.createElement('button');
+    reset.type = 'button';
+    reset.textContent = "Reset Game";
+    reset.id = 'reset';
+    reset.addEventListener('pointerdown', controller.resetGame);
+    document.querySelector('body').appendChild(reset);
+    return reset;
+}
+
 var gameBoard = (function () {
     let spaces = [];
     let _gameActive = false;
+
+    function _clearBoard() {
+        document.querySelector("#gameboard").remove();
+        spaces = [];
+        return;
+    }
 
     function _makeBoard(){
         let board = document.createElement('div');
@@ -21,6 +37,7 @@ var gameBoard = (function () {
         }
         document.querySelector('body').appendChild(board);
         document.getElementById('start').style.display = 'none';
+        return;
     };
 
     function _triggerGame() {
@@ -50,6 +67,9 @@ var gameBoard = (function () {
         },
         getCurrentState: function() {
             return spaces;
+        },
+        clearBoard: function() {
+            return _clearBoard();
         }
     };
 })();
@@ -58,6 +78,7 @@ var controller = (function () {
     let players = [];
     let activePlayer;
     let _moves = 0;
+    //let _allowInput = true;
     const _winningStates = [
         [0,1,2],
         [3,4,5],
@@ -68,6 +89,15 @@ var controller = (function () {
         [2,4,6],
         [0,4,8]
     ]
+
+    function _resetGame() {
+        gameBoard.clearBoard();
+        players = [];
+        _moves = 0;
+        activePlayer = null;
+        document.querySelector("#reset").remove();
+        document.getElementById('start').style.display = 'inline-block';
+    }
 
     function _makePlayers() {
         players.push(playerFactory("human", 'X'));
@@ -92,8 +122,8 @@ var controller = (function () {
     }
 
     function _drawGame() {
-        console.log("Tie.");
         gameBoard.endGame();
+        addReset();
     }
 
     function _checkWin(state, currentplayer) {
@@ -173,10 +203,9 @@ var controller = (function () {
             if (controller.checkWin(gameBoard.getCurrentState(), controller.getActivePlayer())){
                 console.log(`${controller.getActivePlayer().mark} wins!`)
                 gameBoard.endGame();
+                addReset();
             }
         }
-
-        console.log(_moves);
         _switchActivePlayer();
         return;
     }
@@ -205,6 +234,9 @@ var controller = (function () {
         },
         cpuMark : function() {
             return _cpuMark();
+        },
+        resetGame: function () {
+            return _resetGame();
         }
     }
 })();
@@ -231,25 +263,23 @@ function playerFactory(ptype, mark) {
             if (controller.checkWin(gameBoard.getCurrentState(), controller.getActivePlayer())){
                 console.log(`${controller.getActivePlayer().mark} wins!`)
                 gameBoard.endGame();
+                addReset();
             }
         }
 
         controller.switchActivePlayer();
         if (gameBoard.isGameActive() && controller.getActivePlayer().ptype === "cpu"){ 
-            setTimeout(controller.cpuMark, 1000);
+            setTimeout(controller.cpuMark);
         }
-        
     }
     return {ptype, mark, addMark};
 }
-
 
 document.querySelector('body').addEventListener('pointerdown', (event)=>{
     if(event.target.classList.contains('wrapper') && gameBoard.isGameActive()) {
         controller.getActivePlayer().addMark(event);
     }
-
-})
+});
 
 document.querySelector("#start").addEventListener('pointerdown', (event) =>{
     controller.makePlayers();
