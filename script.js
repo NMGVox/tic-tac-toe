@@ -8,6 +8,25 @@ function addReset() {
     return reset;
 }
 
+function deselectSiblings(char) {
+    let siblings = Array.from(document.querySelectorAll(`#${char.parentNode.id}>.character`));
+    siblings.forEach(sibling => {
+        if(sibling.getAttribute('data-character') !== char.getAttribute('data-character')) {
+            sibling.classList.remove('selected');
+        }
+    });
+}
+
+function selectCharacter(e) {
+    let char = e.target;
+    if(char.classList.contains('selected')) {
+        return;
+    }
+    deselectSiblings(char);
+    char.classList.add('selected');
+    console.log(document.querySelector(`#${char.parentNode.id}>.selected`).textContent);
+}
+
 var gameBoard = (function () {
     let spaces = [];
     let _gameActive = false;
@@ -37,6 +56,7 @@ var gameBoard = (function () {
         }
         document.querySelector('body').appendChild(board);
         document.getElementById('start').style.display = 'none';
+        document.getElementById('menu').style.display = 'none';
         return;
     };
 
@@ -97,11 +117,15 @@ var controller = (function () {
         activePlayer = null;
         document.querySelector("#reset").remove();
         document.getElementById('start').style.display = 'inline-block';
+        document.getElementById('menu').style.display = 'flex';
     }
 
     function _makePlayers() {
-        players.push(playerFactory("human", 'X'));
-        players.push(playerFactory("cpu", 'O'));
+        p1 = document.querySelector("#heroes>.selected");
+        p2 = document.querySelector("#villains>.selected");
+        console.log(p1.getAttribute('data-character'))
+        players.push(playerFactory("human", 'X', p1.getAttribute('data-character')));
+        players.push(playerFactory("cpu", 'O', p2.getAttribute('data-character')));
         activePlayer = players[0];
     }
 
@@ -201,7 +225,7 @@ var controller = (function () {
 
         if(controller.getMoves() >= 5){
             if (controller.checkWin(gameBoard.getCurrentState(), controller.getActivePlayer())){
-                console.log(`${controller.getActivePlayer().mark} wins!`)
+                console.log(`${controller.getActivePlayer().name} wins!`)
                 gameBoard.endGame();
                 addReset();
             }
@@ -241,7 +265,7 @@ var controller = (function () {
     }
 })();
 
-function playerFactory(ptype, mark) {
+function playerFactory(ptype, mark, name) {
 
     function addMark(e) {
         if(gameBoard.getSpace(e.target.getAttribute('index')) !== ''){
@@ -261,7 +285,7 @@ function playerFactory(ptype, mark) {
         //check winning state
         if(controller.getMoves() >= 5){
             if (controller.checkWin(gameBoard.getCurrentState(), controller.getActivePlayer())){
-                console.log(`${controller.getActivePlayer().mark} wins!`)
+                console.log(`${controller.getActivePlayer().name} wins!`)
                 gameBoard.endGame();
                 addReset();
             }
@@ -272,7 +296,7 @@ function playerFactory(ptype, mark) {
             setTimeout(controller.cpuMark);
         }
     }
-    return {ptype, mark, addMark};
+    return {ptype, mark, name, addMark};
 }
 
 document.querySelector('body').addEventListener('pointerdown', (event)=>{
@@ -284,4 +308,9 @@ document.querySelector('body').addEventListener('pointerdown', (event)=>{
 document.querySelector("#start").addEventListener('pointerdown', (event) =>{
     controller.makePlayers();
     gameBoard.initializeGame();
+});
+
+const characters = Array.from(document.querySelectorAll(".character"));
+characters.forEach(element => {
+    element.addEventListener('pointerdown', selectCharacter);
 });
