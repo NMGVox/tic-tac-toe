@@ -1,6 +1,13 @@
 function addReset() {
     let reset = document.createElement('button');
     reset.type = 'button';
+    if(controller.getActivePlayer().score < 2) {
+        reset.textContent = "Continue";
+        reset.id = 'reset';
+        reset.addEventListener('pointerdown', controller.softReset);
+        document.querySelector('body').appendChild(reset);
+        return reset;
+    }
     reset.textContent = "Reset Game";
     reset.id = 'reset';
     reset.addEventListener('pointerdown', controller.resetGame);
@@ -24,7 +31,29 @@ function selectCharacter(e) {
     }
     deselectSiblings(char);
     char.classList.add('selected');
-    console.log(document.querySelector(`#${char.parentNode.id}>.selected`).textContent);
+}
+
+function generatePlayerInfo() {
+    let contentArr = [];
+    let players = controller.getPlayers();
+    for (let i = 0; i < 2; i++) {
+        let newDiv = document.createElement('div');
+        newDiv.id = `p${i+1}`;
+        newDiv.className = 'player-info';
+        let pName = document.createElement('h2');
+        pName.textContent = players[i].name;
+        pName.className = "player-name";
+        let portrait = document.createElement('img');
+        portrait.className = 'player-portrait';
+        let pScore = document.createElement('h1');
+        pScore.className = 'player-score';
+        pScore.textContent = 0;
+        newDiv.appendChild(pName);
+        newDiv.appendChild(portrait);
+        newDiv.appendChild(pScore);
+        contentArr.push(newDiv);
+    }
+    return contentArr;
 }
 
 var gameBoard = (function () {
@@ -32,16 +61,29 @@ var gameBoard = (function () {
     let _gameActive = false;
 
     function _clearBoard() {
-        document.querySelector("#gameboard").remove();
+        document.querySelector(".game-wrap").remove();
         spaces = [];
         return;
     }
 
+    function _resetBoard() {
+        let spaceArr = Array.from(document.querySelectorAll(".space"));
+        for (let i = 0; i < spaceArr.length; i++) {
+            spaceArr[i].style.display = 'none';
+            spaces[i] = '';
+        }
+        return;
+    }
+
     function _makeBoard(){
+        let gameWrapper = document.createElement('div');
+        gameWrapper.className = 'game-wrap';
+        let player_info = generatePlayerInfo();
         let board = document.createElement('div');
         board.className = "gameboard";
         board.id = 'gameboard';
-
+        let boardWrapper = document.createElement('div');
+        boardWrapper.className = 'board-wrapper';
         for(let i = 0; i < 9; i++){
             let newWrap = document.createElement('div');
             let newSpace = document.createElement('img');
@@ -54,7 +96,11 @@ var gameBoard = (function () {
             board.appendChild(newWrap);
             spaces.push('');
         }
-        document.querySelector('body').appendChild(board);
+        boardWrapper.appendChild(board)
+        gameWrapper.appendChild(player_info[0]);
+        gameWrapper.appendChild(boardWrapper);
+        gameWrapper.appendChild(player_info[1]);
+        document.querySelector('body').appendChild(gameWrapper);
         document.getElementById('start').style.display = 'none';
         document.getElementById('menu').style.display = 'none';
         return;
@@ -90,6 +136,9 @@ var gameBoard = (function () {
         },
         clearBoard: function() {
             return _clearBoard();
+        },
+        resetBoard: function() {
+            return _resetBoard();
         }
     };
 })();
@@ -98,6 +147,7 @@ var controller = (function () {
     let players = [];
     let activePlayer;
     let _moves = 0;
+    let round = 0;
     //let _allowInput = true;
     const _winningStates = [
         [0,1,2],
@@ -118,15 +168,29 @@ var controller = (function () {
         document.querySelector("#reset").remove();
         document.getElementById('start').style.display = 'inline-block';
         document.getElementById('menu').style.display = 'flex';
+        return;
+    }
+
+    function _softReset() {
+        gameBoard.resetBoard();
+        _moves = 0;
+        document.querySelector("#reset").remove();
+        // activePlayer = players[round % 2];
+        activePlayer = players[0];
+        return;
     }
 
     function _makePlayers() {
         p1 = document.querySelector("#heroes>.selected");
         p2 = document.querySelector("#villains>.selected");
         console.log(p1.getAttribute('data-character'))
-        players.push(playerFactory("human", 'X', p1.getAttribute('data-character')));
-        players.push(playerFactory("cpu", 'O', p2.getAttribute('data-character')));
+        players.push(playerFactory("human", 1, 'X', p1.textContent));
+        players.push(playerFactory("cpu", 2, 'O', p2.textContent));
         activePlayer = players[0];
+    }
+
+    function _updateScore() {
+        document.querySelector(`#p${activePlayer.num}>.player-score`).textContent = activePlayer.score;
     }
 
     function _switchActivePlayer() {
@@ -146,11 +210,10 @@ var controller = (function () {
     }
 
     function _drawGame() {
-        gameBoard.endGame();
         addReset();
     }
 
-    function _checkWin(state, currentplayer) {
+    function _IsWinningMove(state, currentplayer) {
         winner = currentplayer.mark.repeat(3);
         for (let i = 0; i < _winningStates.length; i++) {
             let ele = _winningStates[i];
@@ -166,7 +229,7 @@ var controller = (function () {
     }
 
     function _minimax(state, depth, isMaximizingPlayer) {
-        if(_checkWin(state, isMaximizingPlayer)){
+        if(_IsWinningMove(state, isMaximizingPlayer)){
             if(isMaximizingPlayer.ptype !== "cpu"){
                 return -10 + depth;
             }
@@ -223,14 +286,25 @@ var controller = (function () {
         guiBoard[indx].firstChild.style.display  = 'block';
         _moves++;
 
-        if(controller.getMoves() >= 5){
-            if (controller.checkWin(gameBoard.getCurrentState(), controller.getActivePlayer())){
-                console.log(`${controller.getActivePlayer().name} wins!`)
-                gameBoard.endGame();
-                addReset();
-            }
-        }
+        checkWinner();
+
         _switchActivePlayer();
+        return;
+    }
+
+    function checkWinner() {
+        if(_moves < 5) {
+            return;
+        }
+        if (controller.IsWinningMove(gameBoard.getCurrentState(), controller.getActivePlayer())){
+            console.log(`${controller.getActivePlayer().name} wins!`)
+            activePlayer.score++;
+            _updateScore();
+            addReset();
+        }
+        if (activePlayer.score >= 2) {
+            gameBoard.endGame();
+        }
         return;
     }
 
@@ -253,22 +327,31 @@ var controller = (function () {
         getMoves: function() {
             return _moves;
         },
-        checkWin: function(state, currentplayer) {
-            return _checkWin(state, currentplayer);
+        IsWinningMove: function(state, currentplayer) {
+            return _IsWinningMove(state, currentplayer);
         },
         cpuMark : function() {
             return _cpuMark();
         },
         resetGame: function () {
             return _resetGame();
-        }
+        },
+        getPlayers: function() {
+            return players;
+        },
+        softReset: function() {
+            return _softReset();
+        },
+        checkWinner
     }
 })();
 
-function playerFactory(ptype, mark, name) {
+function playerFactory(ptype, num, mark, name) {
+    let score = 0;
 
     function addMark(e) {
         if(gameBoard.getSpace(e.target.getAttribute('index')) !== ''){
+            console.log(gameBoard.getSpace(e.target.getAttribute('index')));
             return;
         }
         if (mark === 'O'){
@@ -283,20 +366,14 @@ function playerFactory(ptype, mark, name) {
         controller.increaseMoves();
 
         //check winning state
-        if(controller.getMoves() >= 5){
-            if (controller.checkWin(gameBoard.getCurrentState(), controller.getActivePlayer())){
-                console.log(`${controller.getActivePlayer().name} wins!`)
-                gameBoard.endGame();
-                addReset();
-            }
-        }
+        controller.checkWinner();
 
         controller.switchActivePlayer();
         if (gameBoard.isGameActive() && controller.getActivePlayer().ptype === "cpu"){ 
             setTimeout(controller.cpuMark);
         }
     }
-    return {ptype, mark, name, addMark};
+    return {ptype, num, mark, name, score, addMark};
 }
 
 document.querySelector('body').addEventListener('pointerdown', (event)=>{
