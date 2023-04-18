@@ -45,6 +45,7 @@ function generatePlayerInfo() {
         pName.className = "player-name";
         let portrait = document.createElement('img');
         portrait.className = 'player-portrait';
+        portrait.src = `./images/portraits/${players[i].dataref}-portrait.png`;
         let pScore = document.createElement('h1');
         pScore.className = 'player-score';
         pScore.textContent = 0;
@@ -54,6 +55,24 @@ function generatePlayerInfo() {
         contentArr.push(newDiv);
     }
     return contentArr;
+}
+
+function removeDimmer(e) {
+    document.querySelector('body').removeChild(e.target);
+    return;
+}
+
+function displayWinner() {
+    let dimmer = document.createElement('div');
+    dimmer.className = 'dimmer';
+    let winnerCard = document.createElement('div');
+    winnerCard.className = 'winner-card';
+    dimmer.appendChild(winnerCard);
+
+    dimmer.addEventListener('pointerdown', removeDimmer);
+
+    document.querySelector('body').appendChild(dimmer);
+    return;
 }
 
 var gameBoard = (function () {
@@ -184,8 +203,8 @@ var controller = (function () {
         p1 = document.querySelector("#heroes>.selected");
         p2 = document.querySelector("#villains>.selected");
         console.log(p1.getAttribute('data-character'))
-        players.push(playerFactory("human", 1, 'X', p1.textContent));
-        players.push(playerFactory("cpu", 2, 'O', p2.textContent));
+        players.push(playerFactory("human", 1, 'X', p1.textContent, p1.getAttribute('data-character')));
+        players.push(playerFactory("cpu", 2, 'O', p2.textContent, p2.getAttribute('data-character')));
         activePlayer = players[0];
     }
 
@@ -282,7 +301,7 @@ var controller = (function () {
         let indx = _nextBestMove(gameBoard.getCurrentState());
         gameBoard.update(indx, activePlayer.mark);
         let guiBoard = Array.from(document.querySelectorAll('.wrapper'));
-        guiBoard[indx].firstChild.src = './images/circle.svg';
+        guiBoard[indx].firstChild.src = activePlayer.vismark;
         guiBoard[indx].firstChild.style.display  = 'block';
         _moves++;
 
@@ -304,6 +323,7 @@ var controller = (function () {
         }
         if (activePlayer.score >= 2) {
             gameBoard.endGame();
+            displayWinner();
         }
         return;
     }
@@ -346,19 +366,16 @@ var controller = (function () {
     }
 })();
 
-function playerFactory(ptype, num, mark, name) {
+function playerFactory(ptype, num, mark, name, dataref) {
     let score = 0;
+    let vismark = `./images/marks/${dataref}-mark.png`;
 
     function addMark(e) {
         if(gameBoard.getSpace(e.target.getAttribute('index')) !== ''){
             console.log(gameBoard.getSpace(e.target.getAttribute('index')));
             return;
         }
-        if (mark === 'O'){
-            e.target.firstChild.src = './images/circle.svg';
-        }else {
-            e.target.firstChild.src = './images/cross.svg';
-        }
+        e.target.firstChild.src = vismark;
         e.target.firstChild.style.display = 'block';
 
         gameBoard.update(e.target.getAttribute('index'), mark);
@@ -373,7 +390,7 @@ function playerFactory(ptype, num, mark, name) {
             setTimeout(controller.cpuMark);
         }
     }
-    return {ptype, num, mark, name, score, addMark};
+    return {ptype, num, mark, dataref, name, score, vismark, addMark};
 }
 
 document.querySelector('body').addEventListener('pointerdown', (event)=>{
