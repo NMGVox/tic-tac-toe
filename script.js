@@ -153,6 +153,16 @@ var gameBoard = (function () {
         spaces[i] = m;
     }
 
+    function _allAvailableSpaces() {
+        avail = [];
+        for(let  i = 0; i < spaces.length; i++) {
+            if(spaces[i] == ''){
+                avail.push(i);
+            }
+        }
+        return avail;
+    }
+
     return {
         initializeGame: function () {
             _makeBoard();
@@ -178,6 +188,9 @@ var gameBoard = (function () {
         },
         resetBoard: function() {
             return _resetBoard();
+        },
+        allAvailableSpaces: function() {
+            return _allAvailableSpaces();
         }
     };
 })();
@@ -305,6 +318,13 @@ var controller = (function () {
     }
 
     function _nextBestMove(state){
+        chanceOfBestMove = Math.random();
+
+        if(chanceOfBestMove < 1) {
+            let avail = gameBoard.allAvailableSpaces();
+            return avail[Math.floor(Math.random() * avail.length)];
+        }
+        
         let bestMove = null;
         let bestVal = -Infinity;
         for (let i = 0; i < state.length; i ++){
