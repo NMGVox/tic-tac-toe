@@ -23,18 +23,36 @@
         <h1 class="title">Sonic Heroes v. Villains</h1>
 
         <div class="selection-wrapper">
-            <div id="heroes" class="char-grid">
-                <div data-character="sonic"  class="character selected">Sonic</div>
-                <div data-character="tails" class="character">Tails</div>
-                <div data-character="amy" class="character">Amy</div>
-                <div data-character="knuckles" class="character">Knuckles</div>
+            <div class="player-options" id="player1-options">
+                <div id="heroes" class="char-grid">
+                    <div data-character="sonic"  class="character selected">Sonic</div>
+                    <div data-character="tails" class="character">Tails</div>
+                    <div data-character="amy" class="character">Amy</div>
+                    <div data-character="knuckles" class="character">Knuckles</div>
+                </div>
+                <form>
+                    <label for="hum_1">Human</label><input type="radio" id="hum_1" name="h_ptype" value="hum" checked>
+                    <label for="e_1">Easy</label><input type="radio" id="e_1" name="h_ptype" value="e">
+                    <label for="n_1">Normal</label><input type="radio" id="n_1" name="h_ptype" value="n">
+                    <label for="h_1">Hard</label><input type="radio" id="h_1" name="h_ptype" value="h">
+                    <label for="i_1">Impossible</label><input type="radio" id="i_1" name="h_ptype" value="i">
+                </form>
             </div>
             <h2>VS.</h2>
-            <div id="villains" class="char-grid">
-                <div data-character="eggman" class="character selected">Eggman</div>
-                <div data-character="metalsonic" class="character">Metal Sonic</div>
-                <div data-character="shadow" class="character">Shadow</div>
-                <div data-character="sage" class="character">SAGE</div>
+            <div class="player-options" id="player2-options">
+                <div id="villains" class="char-grid">
+                    <div data-character="eggman" class="character selected">Eggman</div>
+                    <div data-character="metalsonic" class="character">Metal Sonic</div>
+                    <div data-character="shadow" class="character">Shadow</div>
+                    <div data-character="sage" class="character">SAGE</div>
+                </div>
+                <form>
+                    <label for="hum_2">Human</label><input type="radio" id="hum_2" name="h_ptype" value="hum" checked>
+                    <label for="e_2">Easy</label><input type="radio" id="e_2" name="h_ptype" value="e">
+                    <label for="n_2">Normal</label><input type="radio" id="n_2" name="h_ptype" value="n">
+                    <label for="h_2">Hard</label><input type="radio" id="h_2" name="h_ptype" value="h">
+                    <label for="i_2">Impossible</label><input type="radio" id="i_2" name="h_ptype" value="i">
+                </form>
             </div>
         </div>
 

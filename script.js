@@ -8,19 +8,20 @@ function loadImages () {
 }
 
 function addReset() {
+    let boardWrapper = document.querySelector('.board-wrapper');
     let reset = document.createElement('button');
     reset.type = 'button';
     if(controller.getActivePlayer().score < 2) {
         reset.textContent = "Continue";
         reset.id = 'reset';
         reset.addEventListener('pointerdown', controller.softReset);
-        document.querySelector('body').appendChild(reset);
+        boardWrapper.appendChild(reset);
         return reset;
     }
     reset.textContent = "Reset Game";
     reset.id = 'reset';
     reset.addEventListener('pointerdown', controller.resetGame);
-    document.querySelector('body').appendChild(reset);
+    boardWrapper.appendChild(reset);
     return reset;
 }
 
@@ -66,8 +67,8 @@ function generatePlayerInfo() {
     return contentArr;
 }
 
-function removeDimmer(e) {
-    document.querySelector('body').removeChild(e.target);
+function removeDimmer() {
+    document.querySelector('.dimmer').remove();
     return;
 }
 
@@ -85,7 +86,11 @@ function displayWinner(winner) {
     win_text.className = 'win-text';
     win_text.textContent = `${winner.name} wins!`;
 
-    winnerCard.append(winner_image, win_text);
+    let instruct_text = document.createElement('h3');
+    instruct_text.className = 'instruct-text';
+    instruct_text.textContent = `Click anywhere outside to continue!`;
+
+    winnerCard.append(winner_image, win_text, instruct_text);
 
     dimmer.appendChild(winnerCard);
 
@@ -177,7 +182,7 @@ var gameBoard = (function () {
         isGameActive: function() {
             return _gameActive;
         },
-        endGame: function() {
+        triggerGame: function() {
             _triggerGame();
         },
         getCurrentState: function() {
@@ -218,7 +223,6 @@ var controller = (function () {
         _moves = 0;
         round = 0;
         activePlayer = null;
-        document.querySelector("#reset").remove();
         document.getElementById('start').style.display = 'inline-block';
         document.getElementById('menu').style.display = 'flex';
         return;
@@ -229,6 +233,8 @@ var controller = (function () {
         round++;
         _moves = 0;
         document.querySelector("#reset").remove();
+        document.querySelector('.board-wrapper').firstChild.remove();
+        gameBoard.triggerGame();
         activePlayer = players[round % 2];
         console.log(round % 2);
         if(activePlayer.ptype === 'cpu') {
@@ -267,7 +273,22 @@ var controller = (function () {
     }
 
     function _drawGame() {
+        _announceRoundWinner('tie');
         addReset();
+        gameBoard.triggerGame();
+    }
+
+    function _announceRoundWinner(winner) {
+        let boardWrapper = document.querySelector('.board-wrapper');
+        let win_text = document.createElement('h2');
+        if(winner === 'tie') {
+            win_text.textContent = `Tie!`;
+        }else{
+            win_text.textContent = `${winner.name} wins round ${round+1}`;
+        }
+        win_text.className = 'round-win';
+        boardWrapper.insertBefore(win_text, boardWrapper.firstChild);
+        return;
     }
 
     function _IsWinningMove(state, currentplayer) {
@@ -363,10 +384,11 @@ var controller = (function () {
         if (controller.IsWinningMove(gameBoard.getCurrentState(), controller.getActivePlayer())){
             activePlayer.score++;
             _updateScore();
+            _announceRoundWinner(activePlayer);
+            gameBoard.triggerGame();
             addReset();
         }
         if (activePlayer.score >= 2) {
-            gameBoard.endGame();
             displayWinner(activePlayer);
         }
         return;

@@ -46,6 +46,12 @@ body {
     background-position: fixed;
 }
 
+h2 {
+    font-family: sanic-style, sans-serif;
+    font-size: 1.5rem;
+    letter-spacing: 1px;
+}
+
 .menu-container {
     display: flex;
     flex-direction: column;
@@ -53,7 +59,7 @@ body {
     align-items: center;
     height: 70%;
     width: 70%;
-    background-color: rgb(151, 221, 226);
+    background-color: rgba(151, 221, 226, 0.24);
     border-radius: 32px;
     border-style: solid;
     border-color: rgba(219, 219, 219, 0.562);
@@ -74,6 +80,15 @@ body {
     height: 70%;
 }
 
+.player-options {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 40%;
+}
+
 .char-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -82,7 +97,7 @@ body {
     border-width: 2px;
     border-radius: 1rem;
     overflow: hidden;
-    width: 40%;
+    width: 100%;
     height:90%;
 }
 
@@ -174,8 +189,8 @@ body {
 }
 
 .player-portrait {
-    height: 8rem;
-    width: 8rem;
+    height: 250px;
+    width: 250px;
     border-width: 6px;
     border-color: black;
     border-style: solid;
@@ -195,8 +210,14 @@ body {
     height: 100%;
     width: 50%;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
+}
+
+.round-win {
+    font-family: sanic-style, sans-serif;
+    font-size: 2rem;
 }
 
 .dimmer {
@@ -213,6 +234,7 @@ body {
 }
 
 .winner-card {
+    position:relative;
     display:flex;
     width: 100%;
     height: 60%;
@@ -234,4 +256,10 @@ body {
     letter-spacing: 2px;
     text-decoration: underline;
     pointer-events: none;
+}
+
+.instruct-text {
+    position: absolute;
+    bottom: 0;
+    font-family: sanic-style, sans-serif;
 }
