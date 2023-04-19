@@ -1,3 +1,12 @@
+function loadImages () {
+    let squares = Array.from(document.querySelectorAll('.character'));
+    squares.forEach(square => {
+        console.log(square.getAttribute('data-character'));
+        square.style.backgroundImage = `url(./images/portraits/${square.getAttribute('data-character')}-portrait.png)`;
+    });
+    return;
+}
+
 function addReset() {
     let reset = document.createElement('button');
     reset.type = 'button';
@@ -62,11 +71,22 @@ function removeDimmer(e) {
     return;
 }
 
-function displayWinner() {
+function displayWinner(winner) {
     let dimmer = document.createElement('div');
     dimmer.className = 'dimmer';
     let winnerCard = document.createElement('div');
     winnerCard.className = 'winner-card';
+
+    let winner_image = document.createElement('img');
+    winner_image.className = "win-img";
+    winner_image.src = `./images/defaults/${winner.dataref}-large.png`;
+
+    let win_text = document.createElement('h1');
+    win_text.className = 'win-text';
+    win_text.textContent = `${winner.name} wins!`;
+
+    winnerCard.append(winner_image, win_text);
+
     dimmer.appendChild(winnerCard);
 
     dimmer.addEventListener('pointerdown', removeDimmer);
@@ -183,6 +203,7 @@ var controller = (function () {
         gameBoard.clearBoard();
         players = [];
         _moves = 0;
+        round = 0;
         activePlayer = null;
         document.querySelector("#reset").remove();
         document.getElementById('start').style.display = 'inline-block';
@@ -192,10 +213,14 @@ var controller = (function () {
 
     function _softReset() {
         gameBoard.resetBoard();
+        round++;
         _moves = 0;
         document.querySelector("#reset").remove();
-        // activePlayer = players[round % 2];
-        activePlayer = players[0];
+        activePlayer = players[round % 2];
+        console.log(round % 2);
+        if(activePlayer.ptype === 'cpu') {
+            _cpuMark();
+        }
         return;
     }
 
@@ -316,14 +341,13 @@ var controller = (function () {
             return;
         }
         if (controller.IsWinningMove(gameBoard.getCurrentState(), controller.getActivePlayer())){
-            console.log(`${controller.getActivePlayer().name} wins!`)
             activePlayer.score++;
             _updateScore();
             addReset();
         }
         if (activePlayer.score >= 2) {
             gameBoard.endGame();
-            displayWinner();
+            displayWinner(activePlayer);
         }
         return;
     }
@@ -408,3 +432,5 @@ const characters = Array.from(document.querySelectorAll(".character"));
 characters.forEach(element => {
     element.addEventListener('pointerdown', selectCharacter);
 });
+
+window.addEventListener('load', loadImages);
