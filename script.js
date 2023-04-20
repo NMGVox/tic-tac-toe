@@ -1,7 +1,6 @@
 function loadImages () {
     let squares = Array.from(document.querySelectorAll('.character'));
     squares.forEach(square => {
-        console.log(square.getAttribute('data-character'));
         square.style.backgroundImage = `url(./images/portraits/${square.getAttribute('data-character')}-portrait.png)`;
     });
     return;
@@ -236,8 +235,7 @@ var controller = (function () {
         document.querySelector('.board-wrapper').firstChild.remove();
         gameBoard.triggerGame();
         activePlayer = players[round % 2];
-        console.log(round % 2);
-        if(activePlayer.ptype === 'cpu') {
+        if(activePlayer.ptype !== 'hum') {
             _cpuMark();
         }
         return;
@@ -246,9 +244,11 @@ var controller = (function () {
     function _makePlayers() {
         p1 = document.querySelector("#heroes>.selected");
         p2 = document.querySelector("#villains>.selected");
+        p1type = document.querySelector('#player1-options>input[name="h_ptype"]:checked').value;
+        p2type = document.querySelector('#player2-options>input[name="h_ptype"]:checked').value;
         console.log(p1.getAttribute('data-character'))
-        players.push(playerFactory("human", 1, 'X', p1.textContent, p1.getAttribute('data-character')));
-        players.push(playerFactory("cpu", 2, 'O', p2.textContent, p2.getAttribute('data-character')));
+        players.push(playerFactory(p1type, 1, 'X', p1.textContent, p1.getAttribute('data-character')));
+        players.push(playerFactory(p2type, 2, 'O', p2.textContent, p2.getAttribute('data-character')));
         activePlayer = players[0];
     }
 
@@ -308,7 +308,7 @@ var controller = (function () {
 
     function _minimax(state, depth, isMaximizingPlayer) {
         if(_IsWinningMove(state, isMaximizingPlayer)){
-            if(isMaximizingPlayer.ptype !== "cpu"){
+            if(isMaximizingPlayer.ptype === "hum"){
                 return -10 + depth;
             }
             return 10 - depth;
@@ -317,7 +317,7 @@ var controller = (function () {
             return 0;
         }
 
-        if (isMaximizingPlayer.ptype === "cpu" ) {
+        if (isMaximizingPlayer.ptype !== "hum" ) {
             let value = -999999;
             for(let i = 0; i < state.length; i++) {
                 if(state[i] !== '') { continue; }
@@ -340,8 +340,10 @@ var controller = (function () {
 
     function _nextBestMove(state){
         chanceOfBestMove = Math.random();
+        console.log(activePlayer.getModifier());
 
-        if(chanceOfBestMove < 1) {
+        if(chanceOfBestMove < 1 - activePlayer.getModifier()) {
+            console.log("?");
             let avail = gameBoard.allAvailableSpaces();
             return avail[Math.floor(Math.random() * avail.length)];
         }
@@ -435,6 +437,18 @@ var controller = (function () {
 function playerFactory(ptype, num, mark, name, dataref) {
     let score = 0;
     let vismark = `./images/marks/${dataref}-mark.png`;
+    
+    function getModifier() {
+        if(ptype === "e") {
+            return .15;
+        }else if(ptype === 'n') {
+            return .35;
+        }else if(ptype === 'h') {
+            return .60;
+        }else {
+            return 1;
+        }
+    }
 
     function addMark(e) {
         if(gameBoard.getSpace(e.target.getAttribute('index')) !== ''){
@@ -452,11 +466,11 @@ function playerFactory(ptype, num, mark, name, dataref) {
         controller.checkWinner();
 
         controller.switchActivePlayer();
-        if (gameBoard.isGameActive() && controller.getActivePlayer().ptype === "cpu"){ 
+        if (gameBoard.isGameActive() && controller.getActivePlayer().ptype !== "hum"){ 
             setTimeout(controller.cpuMark);
         }
     }
-    return {ptype, num, mark, dataref, name, score, vismark, addMark};
+    return {ptype, num, mark, dataref, name, score, vismark, addMark, getModifier};
 }
 
 document.querySelector('body').addEventListener('pointerdown', (event)=>{
