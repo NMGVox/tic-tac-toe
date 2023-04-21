@@ -365,6 +365,13 @@ var controller = (function () {
         return bestMove;
     }
 
+    function _isCPUNext() {
+        if(activePlayer.ptype !== "hum") {
+            return true;
+        }
+        return false;
+    }
+
     function _cpuMark(){
         let indx = _nextBestMove(gameBoard.getCurrentState());
         gameBoard.update(indx, activePlayer.mark);
@@ -376,6 +383,10 @@ var controller = (function () {
         checkWinner();
 
         _switchActivePlayer();
+
+        if(gameBoard.isGameActive() && _isCPUNext()) {
+            _cpuMark();
+        }
         return;
     }
 
@@ -482,6 +493,9 @@ document.querySelector('body').addEventListener('pointerdown', (event)=>{
 document.querySelector("#start").addEventListener('pointerdown', (event) =>{
     controller.makePlayers();
     gameBoard.initializeGame();
+    if(controller.getActivePlayer().ptype !== 'hum') {
+        controller.cpuMark();
+    }
 });
 
 const characters = Array.from(document.querySelectorAll(".character"));

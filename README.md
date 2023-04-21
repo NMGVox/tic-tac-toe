@@ -18,7 +18,7 @@ a random available space on the board. Obviously, there exist better ways to han
 
 TO-DO:
 
-1) Make AI vs AI matches work.
+1) Make AI vs AI matches work. (DONE!)
 2) Add transitions (fade-in fade-out) and delays when the computer makes a move.
 3) Make application play nice with devices with smaller screens/zoomed-in browsers.
 
