@@ -15,4 +15,11 @@ a modifier for each level of difficulty. On each of the AI's turns, it rolls a r
 the AI will use the mimax theorem to choose the next best move. If the roll is below the difference between 1 and the modifer, then the computer will xchooses
 a random available space on the board. Obviously, there exist better ways to handle this, but the current method works for this small project. 
 
+
+TO-DO:
+
+1) Make AI vs AI matches work.
+2) Add transitions (fade-in fade-out) and delays when the computer makes a move.
+3) Make application play nice with devices with smaller screens/zoomed-in browsers.
+
 Enjoy!
