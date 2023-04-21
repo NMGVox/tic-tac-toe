@@ -31,11 +31,11 @@
                     <div data-character="knuckles" class="character">Knuckles</div>
                 </div>
                 <form id="player1-options">
-                    <label for="hum_1">Human</label><input type="radio" id="hum_1" name="h_ptype" value="hum" checked>
-                    <label for="e_1">Easy</label><input type="radio" id="e_1" name="h_ptype" value="e">
-                    <label for="n_1">Normal</label><input type="radio" id="n_1" name="h_ptype" value="n">
-                    <label for="h_1">Hard</label><input type="radio" id="h_1" name="h_ptype" value="h">
-                    <label for="i_1">Impossible</label><input type="radio" id="i_1" name="h_ptype" value="i">
+                    <div class="pair"><label for="hum_1">Human</label><input type="radio" id="hum_1" name="h_ptype" value="hum" checked></div>
+                    <div class="pair"><label for="e_1">Easy</label><input type="radio" id="e_1" name="h_ptype" value="e"></div>
+                    <div class="pair"><label for="n_1">Normal</label><input type="radio" id="n_1" name="h_ptype" value="n"></div>
+                    <div class="pair"><label for="h_1">Hard</label><input type="radio" id="h_1" name="h_ptype" value="h"></div>
+                    <div class="pair"><label for="i_1">Impossible</label><input type="radio" id="i_1" name="h_ptype" value="i"></div>
                 </form>
             </div>
             <h2>VS.</h2>
@@ -47,17 +47,19 @@
                     <div data-character="sage" class="character">SAGE</div>
                 </div>
                 <form id="player2-options">
-                    <label for="hum_2">Human</label><input type="radio" id="hum_2" name="h_ptype" value="hum" checked>
-                    <label for="e_2">Easy</label><input type="radio" id="e_2" name="h_ptype" value="e">
-                    <label for="n_2">Normal</label><input type="radio" id="n_2" name="h_ptype" value="n">
-                    <label for="h_2">Hard</label><input type="radio" id="h_2" name="h_ptype" value="h">
-                    <label for="i_2">Impossible</label><input type="radio" id="i_2" name="h_ptype" value="i">
+                    <div class="pair"><label for="hum_2">Human</label><input type="radio" id="hum_2" name="h_ptype" value="hum" checked></div>
+                    <div class="pair"><label for="e_2">Easy</label><input type="radio" id="e_2" name="h_ptype" value="e"></div>
+                    <div class="pair"><label for="n_2">Normal</label><input type="radio" id="n_2" name="h_ptype" value="n"></div>
+                    <div class="pair"><label for="h_2">Hard</label><input type="radio" id="h_2" name="h_ptype" value="h"></div>
+                    <div class="pair"><label for="i_2">Impossible</label><input type="radio" id="i_2" name="h_ptype" value="i"></div>
                 </form>
             </div>
         </div>
 
         <button type="button" id="start">Start game</button>
     </div>
+
+    <div class="footer">Designed by <a href="https://github.com/NMGVox">NMGVox <img src="./images/github.svg" alt="Github logo"></a></div>
 
     <script src="./script.js"></script>
 </body>

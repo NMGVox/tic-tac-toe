@@ -244,8 +244,8 @@ var controller = (function () {
     function _makePlayers() {
         p1 = document.querySelector("#heroes>.selected");
         p2 = document.querySelector("#villains>.selected");
-        p1type = document.querySelector('#player1-options>input[name="h_ptype"]:checked').value;
-        p2type = document.querySelector('#player2-options>input[name="h_ptype"]:checked').value;
+        p1type = document.querySelector('#player1-options input[name="h_ptype"]:checked').value;
+        p2type = document.querySelector('#player2-options input[name="h_ptype"]:checked').value;
         console.log(p1.getAttribute('data-character'))
         players.push(playerFactory(p1type, 1, 'X', p1.textContent, p1.getAttribute('data-character')));
         players.push(playerFactory(p2type, 2, 'O', p2.textContent, p2.getAttribute('data-character')));
