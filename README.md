@@ -22,4 +22,10 @@ TO-DO:
 2) Add transitions (fade-in fade-out) and delays when the computer makes a move.
 3) Make application play nice with devices with smaller screens/zoomed-in browsers.
 
+**Images**
+![TicTacToe](https://github.com/NMGVox/tic-tac-toe/assets/87345234/4fc7c6b9-30f0-4af3-a810-bfba9c1c352b)
+![TicTacToe2](https://github.com/NMGVox/tic-tac-toe/assets/87345234/35c63883-b30f-4621-9aea-9b9e53efaa16)
+
+[DEMO](https://nmgvox.github.io/tic-tac-toe/ "Tic-Tac-Toe")
+
 Enjoy!
